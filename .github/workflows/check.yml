@@ -1,0 +1,27 @@
+name: its-kenpo-check
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Slackにテスト通知を送る"
+        type: boolean
+        default: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: python check.py
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TARGET_URL: ${{ secrets.TARGET_URL }}
+          TEST_NOTIFY: ${{ github.event.inputs.test }}
